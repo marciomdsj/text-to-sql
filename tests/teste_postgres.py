@@ -1,19 +1,23 @@
+import os
 import psycopg2
+from dotenv import load_dotenv
+
+load_dotenv()
 
 conn = psycopg2.connect(
-    host='localhost',
-    user='marciomdsj',
-    password='',
-    database='chinook',
-    port=5432
+    host=os.getenv('POSTGRES_HOST', 'localhost'),
+    user=os.getenv('POSTGRES_USER', ''),
+    password=os.getenv('POSTGRES_PASSWORD', ''),
+    database=os.getenv('POSTGRES_DATABASE', 'chinook'),
+    port=int(os.getenv('POSTGRES_PORT', 5432))
 )
 
 cursor = conn.cursor()
 
 # Listar tabelas
 cursor.execute("""
-    SELECT table_name FROM information_schema.tables 
-    WHERE table_schema = 'public' 
+    SELECT table_name FROM information_schema.tables
+    WHERE table_schema = 'public'
     ORDER BY table_name;
 """)
 tabelas = cursor.fetchall()

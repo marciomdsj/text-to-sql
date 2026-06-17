@@ -1,12 +1,15 @@
+import os
 import mysql.connector
+from dotenv import load_dotenv
 
-# Conexão com MySQL
+load_dotenv()
+
 conn = mysql.connector.connect(
-    host='127.0.0.1',
-    user='root',
-    password='root',
-    database='tpch',
-    unix_socket='/tmp/mysql.sock'
+    host=os.getenv('MYSQL_HOST', '127.0.0.1'),
+    user=os.getenv('MYSQL_USER', 'root'),
+    password=os.getenv('MYSQL_PASSWORD', ''),
+    database=os.getenv('MYSQL_DATABASE', 'Chinook'),
+    unix_socket=os.getenv('MYSQL_SOCKET', '/tmp/mysql.sock')
 )
 
 cursor = conn.cursor()
@@ -15,7 +18,7 @@ cursor = conn.cursor()
 cursor.execute("SHOW TABLES;")
 tabelas = cursor.fetchall()
 
-print("Tabelas no banco tpch:")
+print(f"Tabelas no banco {os.getenv('MYSQL_DATABASE', 'Chinook')}:")
 for t in tabelas:
     print(f"  - {t[0]}")
 

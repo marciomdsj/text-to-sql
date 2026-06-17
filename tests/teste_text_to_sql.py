@@ -1,7 +1,11 @@
+import os
 import mysql.connector
 import psycopg2
 import ollama
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ============================
 # CONFIGURAÇÃO
@@ -14,20 +18,20 @@ MODELO = 'qwen2.5-coder:7b'
 # ============================
 def conectar_mysql():
     return mysql.connector.connect(
-        host='127.0.0.1',
-        user='root',
-        password='root',
-        database='Chinook',
-        unix_socket='/tmp/mysql.sock'
+        host=os.getenv('MYSQL_HOST', '127.0.0.1'),
+        user=os.getenv('MYSQL_USER', 'root'),
+        password=os.getenv('MYSQL_PASSWORD', ''),
+        database=os.getenv('MYSQL_DATABASE', 'Chinook'),
+        unix_socket=os.getenv('MYSQL_SOCKET', '/tmp/mysql.sock')
     )
 
 def conectar_postgres():
     return psycopg2.connect(
-        host='localhost',
-        user='marciomdsj',
-        password='',
-        database='chinook',
-        port=5432
+        host=os.getenv('POSTGRES_HOST', 'localhost'),
+        user=os.getenv('POSTGRES_USER', ''),
+        password=os.getenv('POSTGRES_PASSWORD', ''),
+        database=os.getenv('POSTGRES_DATABASE', 'chinook'),
+        port=int(os.getenv('POSTGRES_PORT', 5432))
     )
 
 # ============================
@@ -48,8 +52,8 @@ def pegar_schema_mysql(cursor):
 
 def pegar_schema_postgres(cursor):
     cursor.execute("""
-        SELECT table_name FROM information_schema.tables 
-        WHERE table_schema = 'public' 
+        SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'public'
         ORDER BY table_name;
     """)
     tabelas = cursor.fetchall()
@@ -57,8 +61,8 @@ def pegar_schema_postgres(cursor):
     for t in tabelas:
         nome = t[0]
         cursor.execute(f"""
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
+            SELECT column_name, data_type
+            FROM information_schema.columns
             WHERE table_name = '{nome}' AND table_schema = 'public'
             ORDER BY ordinal_position;
         """)
